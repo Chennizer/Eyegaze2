@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explosion Game with Circles</title>
+    <title>Explosion Game with Start Button</title>
     <style>
         body {
             margin: 0;
             height: 100vh;
             background-color: #000;
             overflow: hidden;
-            cursor: none; /* Hide the default cursor */
             position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
         }
         .explosion {
             position: absolute;
@@ -21,11 +24,11 @@
         }
         .particle {
             position: absolute;
-            width: 20px; /* Increased size */
-            height: 20px; /* Increased size */
+            width: 20px; /* Size of the particles */
+            height: 20px; /* Size of the particles */
             background-color: white;
             border-radius: 50%;
-            animation: move 1.5s ease-out forwards;
+            animation: move 2.5s ease-out forwards; /* Slower and longer animation */
         }
 
         @keyframes move {
@@ -34,7 +37,7 @@
                 opacity: 1;
             }
             100% {
-                transform: translate(var(--x), var(--y)) scale(4); /* Bigger explosion */
+                transform: translate(var(--x), var(--y)) scale(3); /* Intense explosion */
                 opacity: 0;
             }
         }
@@ -50,13 +53,11 @@
 
         .trail {
             position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: white;
+            width: 20px; /* Size of the trail */
+            height: 20px; /* Size of the trail */
             border-radius: 50%;
             pointer-events: none;
-            opacity: 1;
-            animation: fade 0.5s linear forwards;
+            animation: fade 1s linear forwards, rainbow 1s linear forwards;
         }
 
         @keyframes fade {
@@ -65,32 +66,84 @@
                 opacity: 1;
             }
             100% {
-                transform: scale(2);
+                transform: scale(3);
                 opacity: 0;
             }
         }
+
+        @keyframes rainbow {
+            0% {
+                background-color: #00ff00; /* Green */
+            }
+            16% {
+                background-color: #7fff00; /* Chartreuse */
+            }
+            32% {
+                background-color: #ffff00; /* Yellow */
+            }
+            48% {
+                background-color: #ff7f00; /* Orange */
+            }
+            64% {
+                background-color: #ff0000; /* Red */
+            }
+            80% {
+                background-color: #7f00ff; /* Violet */
+            }
+            100% {
+                background-color: #0000ff; /* Blue */
+            }
+        }
+
+        .start-button {
+            padding: 20px 40px;
+            background-color: #28a745;
+            color: #fff;
+            font-size: 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .start-button:hover {
+            background-color: #218838;
+        }
+
     </style>
 </head>
 <body>
 
+<!-- Start Button -->
+<button class="start-button" onclick="startGame()">Commencer!</button>
+
 <!-- Explosion sound -->
-<audio id="explosionSound" src="Sounds/firework.mp3" preload="auto"></audio>
+<audio id="explosionSound" src="explosion-sound.mp3" preload="auto"></audio>
 
 <script>
+    function startGame() {
+        document.querySelector('.start-button').style.display = 'none'; // Hide start button
+
+        // Start the game logic
+        setInterval(createCircle, 10000);
+
+        document.addEventListener('mousemove', (e) => {
+            createTrail(e.clientX, e.clientY);
+        });
+    }
+
     function createExplosion(x, y) {
         const explosion = document.createElement('div');
         explosion.classList.add('explosion');
         explosion.style.left = `${x}px`;
         explosion.style.top = `${y}px`;
 
-        for (let i = 0; i < 30; i++) { // Create 30 particles
+        for (let i = 0; i < 50; i++) { // Increase the number of particles
             const particle = document.createElement('div');
             particle.classList.add('particle');
             particle.style.backgroundColor = getRandomColor();
 
-            // Set random movement for each particle
             const angle = Math.random() * 360;
-            const distance = Math.random() * 150;
+            const distance = Math.random() * 300 + 100; // Farther distance
             particle.style.setProperty('--x', `${Math.cos(angle) * distance}px`);
             particle.style.setProperty('--y', `${Math.sin(angle) * distance}px`);
 
@@ -99,7 +152,6 @@
 
         document.body.appendChild(explosion);
 
-        // Remove the explosion element after the animation
         explosion.addEventListener('animationend', () => {
             explosion.remove();
         });
@@ -114,13 +166,11 @@
     function createTrail(x, y) {
         const trail = document.createElement('div');
         trail.classList.add('trail');
-        trail.style.left = `${x - 5}px`; // Center the trail
-        trail.style.top = `${y - 5}px`; // Center the trail
-        trail.style.backgroundColor = getRandomColor();
+        trail.style.left = `${x - 10}px`; // Center the trail
+        trail.style.top = `${y - 10}px`; // Center the trail
 
         document.body.appendChild(trail);
 
-        // Remove the trail element after the animation
         trail.addEventListener('animationend', () => {
             trail.remove();
         });
@@ -146,14 +196,6 @@
             circle.remove();
         });
     }
-
-    // Create a circle every 10 seconds
-    setInterval(createCircle, 10000);
-
-    // Create a trail that follows the cursor
-    document.addEventListener('mousemove', (e) => {
-        createTrail(e.clientX, e.clientY);
-    });
 
 </script>
 
