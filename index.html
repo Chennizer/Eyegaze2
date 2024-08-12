@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explosion Game with Start Button</title>
+    <title>Explosion Game with Consistent Trail</title>
     <style>
         body {
             margin: 0;
@@ -114,20 +114,36 @@
 <body>
 
 <!-- Start Button -->
-<button class="start-button" onclick="startGame()">Commencer!</button>
+<button class="start-button" onclick="startGame()">Commencer :)</button>
 
 <!-- Explosion sound -->
-<audio id="explosionSound" src="Sounds/firework.mp3" preload="auto"></audio>
+<audio id="explosionSound" src="firework.mp3" preload="auto"></audio>
 
 <script>
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let isPlaying = false;
+
     function startGame() {
         document.querySelector('.start-button').style.display = 'none'; // Hide start button
+        isPlaying = true;
 
         // Start the game logic
         setInterval(createCircle, 10000);
 
+        // Request animation frame loop for continuous trail generation
+        function generateTrail() {
+            if (isPlaying) {
+                createTrail(mouseX, mouseY);
+                requestAnimationFrame(generateTrail);
+            }
+        }
+        requestAnimationFrame(generateTrail);
+
+        // Track mouse movement to update position
         document.addEventListener('mousemove', (e) => {
-            createTrail(e.clientX, e.clientY);
+            mouseX = e.clientX;
+            mouseY = e.clientY;
         });
     }
 
