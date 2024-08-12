@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explosion Game with Circles</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #000;
+            overflow: hidden;
+            cursor: none; /* Hide the default cursor */
+            position: relative;
+        }
+        .explosion {
+            position: absolute;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+        .particle {
+            position: absolute;
+            width: 20px; /* Increased size */
+            height: 20px; /* Increased size */
+            background-color: white;
+            border-radius: 50%;
+            animation: move 1.5s ease-out forwards;
+        }
+
+        @keyframes move {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--x), var(--y)) scale(4); /* Bigger explosion */
+                opacity: 0;
+            }
+        }
+
+        .circle {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: yellow;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .trail {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 1;
+            animation: fade 0.5s linear forwards;
+        }
+
+        @keyframes fade {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Explosion sound -->
+<audio id="explosionSound" src="path/to/explosion-sound.mp3" preload="auto"></audio>
+
+<script>
+    function createExplosion(x, y) {
+        const explosion = document.createElement('div');
+        explosion.classList.add('explosion');
+        explosion.style.left = `${x}px`;
+        explosion.style.top = `${y}px`;
+
+        for (let i = 0; i < 30; i++) { // Create 30 particles
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.style.backgroundColor = getRandomColor();
+
+            // Set random movement for each particle
+            const angle = Math.random() * 360;
+            const distance = Math.random() * 150;
+            particle.style.setProperty('--x', `${Math.cos(angle) * distance}px`);
+            particle.style.setProperty('--y', `${Math.sin(angle) * distance}px`);
+
+            explosion.appendChild(particle);
+        }
+
+        document.body.appendChild(explosion);
+
+        // Remove the explosion element after the animation
+        explosion.addEventListener('animationend', () => {
+            explosion.remove();
+        });
+    }
+
+    function playExplosionSound() {
+        const explosionSound = document.getElementById('explosionSound');
+        explosionSound.currentTime = 0;
+        explosionSound.play();
+    }
+
+    function createTrail(x, y) {
+        const trail = document.createElement('div');
+        trail.classList.add('trail');
+        trail.style.left = `${x - 5}px`; // Center the trail
+        trail.style.top = `${y - 5}px`; // Center the trail
+        trail.style.backgroundColor = getRandomColor();
+
+        document.body.appendChild(trail);
+
+        // Remove the trail element after the animation
+        trail.addEventListener('animationend', () => {
+            trail.remove();
+        });
+    }
+
+    function getRandomColor() {
+        const colors = ['#ff6347', '#3cb371', '#1e90ff', '#ffd700', '#9370db', '#ff4500', '#48d1cc', '#daa520'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function createCircle() {
+        const circle = document.createElement('div');
+        circle.classList.add('circle');
+        circle.style.backgroundColor = getRandomColor();
+        circle.style.left = `${Math.random() * (window.innerWidth - 100)}px`;
+        circle.style.top = `${Math.random() * (window.innerHeight - 100)}px`;
+
+        document.body.appendChild(circle);
+
+        circle.addEventListener('mouseover', () => {
+            createExplosion(circle.offsetLeft + 50, circle.offsetTop + 50);
+            playExplosionSound();
+            circle.remove();
+        });
+    }
+
+    // Create a circle every 10 seconds
+    setInterval(createCircle, 10000);
+
+    // Create a trail that follows the cursor
+    document.addEventListener('mousemove', (e) => {
+        createTrail(e.clientX, e.clientY);
+    });
+
+</script>
+
+</body>
+</html>
